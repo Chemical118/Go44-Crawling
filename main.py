@@ -52,7 +52,7 @@ for last in last_name.split(','):
                     _grade = int(class_chr[0])
                     _class = int(class_chr[2])
                     student_list[class_chr[0] * 6 + class_chr[2] - 7].append(_name)
-                    temp_student_list[_class - 1].append(_name)
+                    temp_student_list[_grade - 1].append(_name)
                 cnt += 1
 driver.quit()
 print("전체 학생은 %d명입니다!" % cnt)
