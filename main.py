@@ -10,6 +10,7 @@ last_name = "가,간,갈,감,강,개,경,계,고,곡,공,곽,교,구,국,군,궁
 cnt = 0
 url = "https://go.sasa.hs.kr/autocomplete/get_hak2?term="
 all_cnt = 0
+conti_check = False
 with open("id.txt", "r") as f:
     _id, _pw = f.readlines()
 options = webdriver.ChromeOptions()
@@ -26,9 +27,10 @@ driver.find_element_by_name('passwd').send_keys(_pw)
 driver.find_element_by_xpath("/html/body/div/div[2]/form/div[3]/div[3]/input").click()
 
 student_list = [[] for _ in range(18)]
+temp_student_list = [[] for _ in range(4)]
 for last in last_name.split(','):
     driver.get(url + parse.quote(last))
-    namelist = BeautifulSoup(driver.page_source, 'html.parser').text[1:-1]
+    namelist = BeautifulSoup(driver.page_source, 'html.parser').text.split("\n")[-1][1:-1]  # 에러 회피
     last_check = last.encode('unicode_escape')
     last_check = last_check.decode('utf-8')
     if namelist != "":
@@ -39,17 +41,40 @@ for last in last_name.split(','):
                 _name = _name.encode('utf-8')
                 _name = _name.decode('unicode_escape')
                 class_chr = name.split(' ')[0]
-                if class_chr[0].isdigit() & class_chr[2].isdigit():
+                t = class_chr
+                if class_chr == "" or class_chr[2] == "0":  # 학번이 변경중인 경우
+                    if class_chr == "":
+                        temp_student_list[3].append(_name)
+                    else:
+                        temp_student_list[int(class_chr[0]) - 1].append(_name)
+                    conti_check = True
+                else:  # 학번이 정해진 경우
                     _grade = int(class_chr[0])
                     _class = int(class_chr[2])
-                    student_list[_grade * 6 + _class - 7].append(_name)
-                    cnt += 1
+                    student_list[class_chr[0] * 6 + class_chr[2] - 7].append(_name)
+                    temp_student_list[_class - 1].append(_name)
+                cnt += 1
+driver.quit()
 print("전체 학생은 %d명입니다!" % cnt)
-for i in range(18):
-    print("%d-%d" % (i / 6 + 1, i % 6 + 1))
-    cnt = 1
-    for st in student_list[i]:
-        print("%d%d%02d %s" % (i / 6 + 1, i % 6 + 1, cnt, st))
-        cnt += 1
+if conti_check:
+    print("반배정이 결정되지 않았습니다")
+    print("1학년 : %d명\n2학년 : %d명\n3학년 : %d명\n졸업생 : %d명" % (
+        len(temp_student_list[0]), len(temp_student_list[1]), len(temp_student_list[2]), len(temp_student_list[3])))
+    for i in range(4):
+        print("-----------------------")
+        if i == 3:
+            print("졸업생")
+        else:
+            print("%d학년" % (i + 1))
+        for j in temp_student_list[i]: print(j)
+else:
+    for i in range(18):
+        print("1학년 : %d명\n2학년 : %d명\n3학년 : %d명" % (
+            len(temp_student_list[0]), len(temp_student_list[1]), len(temp_student_list[2])))
+        print("%d-%d" % (i / 6 + 1, i % 6 + 1))
+        cnt = 1
+        for st in student_list[i]:
+            print("%d%d%02d %s" % (i / 6 + 1, i % 6 + 1, cnt, st))
+            cnt += 1
 # 달빛학사 정보 얻기
 # Code by Ryu
