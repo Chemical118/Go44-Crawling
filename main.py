@@ -19,7 +19,7 @@ with open("id.txt", "r") as f:
 options = webdriver.ChromeOptions()
 options.add_argument('headless')
 options.add_argument('window-size=1920x1080')
-options.add_argument("disable-gpu")
+options.add_argument('disable-gpu')
 
 driver = webdriver.Chrome("chromedriver", options=options)
 
@@ -68,8 +68,7 @@ if conti_check:
             print("%d학년" % (i + 1))
         for st in li: print(st)
 else:
-    len_tuple = len_tuple[:-1]
-    print("1학년 : %d명\n2학년 : %d명\n3학년 : %d명" % len_tuple)
+    print("1학년 : %d명\n2학년 : %d명\n3학년 : %d명" % len_tuple[:-1])
     for i, li in enumerate(student_list):
         print("%d-%d" % (i / 6 + 1, i % 6 + 1))
         for j, st in enumerate(li):
